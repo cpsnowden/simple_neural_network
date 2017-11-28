@@ -1,7 +1,6 @@
 import numpy as np
 import random
 from operator import add
-import utils.data_utils
 
 class Neural_Network(object):
     def __init__(self, *layer_sizes):
@@ -97,7 +96,8 @@ class Neural_Network(object):
         for l in range(2, self.number_of_layers):
             z = zs[-l]
             sp = Neural_Network.sigmoid(z)
-            delta = np.dot(self.weights[-l+1].transpose(), delta) * sp
+            w_lplus1 = self.weights[-l + 1].transpose()
+            delta = np.dot(w_lplus1, delta) * sp
             grad_b[-l] = delta
             grad_w[-l] = np.dot(delta, activations[-l-1].transpose())
         return (grad_b, grad_w)

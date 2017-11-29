@@ -200,13 +200,12 @@ class NN(object):
         return len([(output, expected) for output, expected in inputs_and_expected_outputs if output == expected])
 
 
-    def train_from_batch(self, batch, delta):
-
-        delta_w = [np.zeros((len(l2), len(l1))) for l1,l2 in zip(self.layers[:-1], self.layers[1:])]
+    def train_from_batch_using_ooo(self, batch, delta):
+        delta_w = [np.zeros((len(l2), len(l1))) for l1, l2 in zip(self.layers[:-1], self.layers[1:])]
         delta_b = [np.zeros((len(layer), 1)) for layer in self.layers[1:]]
         N = len(batch)
         for input_v, output_i in batch:
-            delta_b_inc,delta_w_inc = self.backwards_propagate(input_v, output_i)
+            delta_b_inc, delta_w_inc = self.backwards_propagate(input_v, output_i)
             delta_w = map(add, delta_w_inc, delta_w)
             delta_b = map(add, delta_b_inc, delta_b)
 
@@ -220,6 +219,17 @@ class NN(object):
 
         self.update_weights(delta_w, delta / N)
         self.update_biases(delta_b, delta / N)
+
+    def train_from_batch(self, batch, delta, fast=False):
+        if fast:
+            self.train_from_batch_fast(batch, delta)
+        else:
+            self.train_from_batch_using_ooo(batch, delta)
+
+    def train_from_batch_fast(self, batch, delta):
+        #convert to matrix then do everthing as matrix format might require() tain() to be done a matrix mult
+        pass
+
 
     def update_weights(self, delta_weights, step_size):
         for layer, delta_weight_for_layer in zip(self.layers[1:], delta_weights):
@@ -273,4 +283,5 @@ class NN(object):
 
     def cost_deriv(self, output, expected_output):
         return output - expected_output
+
 
